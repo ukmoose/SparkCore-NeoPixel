@@ -241,55 +241,7 @@ void Adafruit_NeoPixel::show(void) {
       } while ( ++j < 24 ); // ... pixel done
     } // end while(i) ... no more pixels
   }
-  else if(type == TM1803) { // TM1803 (Radio Shack Tri-Color Strip), 400 KHz bitstream
-    while(i) { // While bytes left... (3 bytes = 1 pixel)
-      mask = 0x800000; // reset the mask
-      i = i-3;      // decrement bytes remaining
-      r = *ptr++;   // Next green byte value
-      g = *ptr++;   // Next red byte value
-      b = *ptr++;   // Next blue byte value
-      c = ((uint32_t)r << 16) | ((uint32_t)g <<  8) | b; // Pack the next 3 bytes to keep timing tight
-      j = 0;        // reset the 24-bit counter
-      do {
-        PIN_MAP[pin].gpio_peripheral->BSRR = PIN_MAP[pin].gpio_pin; // HIGH
-        if (c & mask) { // if masked bit is high
-          // TM1803 spec             1.36us HIGH
-          // Pololu on Arduino      (meas. 1.31us)
-          // This lib on Spark Core (meas. 1.36us)
-          asm volatile(
-            "mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            ::: "r0", "cc", "memory");
-          // TM1803 spec             680ns LOW
-          // Pololu on Arduino      (meas. 1.024us)
-          // This lib on Spark Core (meas. 670ns)
-          PIN_MAP[pin].gpio_peripheral->BRR = PIN_MAP[pin].gpio_pin; // LOW
-          asm volatile(  
-            "mov r0, r0" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            "nop" "\n\t" "nop" "\n\t" "nop" "\n\t"
-            ::: "r0", "cc", "memory");
-        }
-        mask >>= 1;
-      } while ( ++j < 24 ); // ... pixel done
-    } // end while(i) ... no more pixels
-  }
+ 
   
 
   __enable_irq();
